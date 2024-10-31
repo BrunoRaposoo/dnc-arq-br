@@ -42,6 +42,11 @@
   color: #FFF;
 }
 
+.button.unstyled {
+  background-color: transparent;
+  
+}
+
 /* DISABLE */
 .button:disabled, .button:disabled:hover {
   background-color: #ccc;

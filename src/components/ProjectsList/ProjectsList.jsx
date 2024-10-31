@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import './ProjectsList.css'
 import { useContext, useEffect, useState } from 'react'
+import Button from '../Button/Button'
 
 // ASSETS
 import LikedFilled from '../../assets/like-fill.svg'
@@ -15,6 +16,21 @@ import { AppContext } from '../../contexts/AppContext'
 
 export default function ProjectsList() {
   const [projects, setProjects] = useState([])
+  const [faveProjects, setFaveProjects] = useState([]);
+
+  const handleSavedProjects = (id) => {
+    setFaveProjects((prevFaveProjects) => {
+      if (prevFaveProjects.includes(id)) {
+        const filteredArray = prevFaveProjects.filter(projectId => projectId !== id);
+        sessionStorage.setItem('faveProjects', JSON.stringify(filteredArray));
+        return filteredArray;
+      } else {
+        const newFaveProjects = [...prevFaveProjects, id];
+        sessionStorage.setItem('faveProjects', JSON.stringify(newFaveProjects));
+        return newFaveProjects;
+      }
+    });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,6 +43,13 @@ export default function ProjectsList() {
     }
 
     fetchData()
+  }, [])
+
+  useEffect(() => {
+    const savedProjects = JSON.parse(sessionStorage.getItem('faveProjects'));
+    if (savedProjects) {
+      setFaveProjects(savedProjects);
+    }
   }, [])
 
   const appContext = useContext(AppContext)
@@ -44,17 +67,19 @@ export default function ProjectsList() {
           projects ?
             projects.map((project) => (
               <div className="project-card d-flex jc-center al-center al-center fd-column" key={project.id}>
-                <div 
+                <div
                   className="thumb tertiary-background"
-                  style={{ backgroundImage: `url(${project.thumb})`}}
+                  style={{ backgroundImage: `url(${project.thumb})` }}
                 >
                 </div>
                 <h3>{project.title}</h3>
                 <p>{project.subtitle}</p>
-                <img src={LikedFilled} height={20} />
+                <Button buttonStyle='unstyled' onClick={() => handleSavedProjects(project.id)}>
+                  <img src={faveProjects.includes(project.id) ? LikedFilled : Like} height={20} />
+                </Button>
               </div>
             ))
-          : null
+            : null
         }
       </div>
     </div>
